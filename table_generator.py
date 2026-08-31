@@ -10,8 +10,11 @@ def error(message:str):
 
 class MarkdownTable:
 
-    def __init__(self, data_file, md_file, align: Literal["left", "center", "right"]="center", line_num=1, append=False, 
-                 col_headers=[]) -> None:
+    def __init__(self, 
+                 data_file, md_file, 
+                 align: Literal["left", "center", "right"]="center", 
+                 line_num=1, append=False, col_headers=[]
+                ) -> None:
 
         if not os.path.exists(data_file):
             error(f"{data_file} does not exist.")
@@ -34,6 +37,7 @@ class MarkdownTable:
 
 
     def delegate(self):
+        '''Direct table value processing based on file type.'''
         if self.data_file[-4:] == ".csv":
             self.process_csv()
         elif self.data_file[-4:] == ".npy":
@@ -46,7 +50,16 @@ class MarkdownTable:
             error("Invalid file type. Data file must be either a CSV, NumPy, or Excel file.")
 
 
-    def process_dataframe(self, df):
+    def col_header_update(self, headers):
+        '''Update instance for tracking new column headers.'''
+        if len(headers) == 0:
+            error(f"No column headers given and column headers could not be located in {self.data_file}.")
+        self.col_headers = headers
+        self.num_cols = len(headers)
+
+
+    def process_dataframe(self, df:pd.DataFrame):
+        '''Helper function for file processing functions using Dataframes.'''
         num_rows = len(df[self.col_headers[0]])
         rows = [[] for _ in range(num_rows)]
 
@@ -68,21 +81,22 @@ class MarkdownTable:
     def process_csv(self):
         '''Process given CSV file: find column headers if none given and store
         values for all tracked column headers in row order.'''
-
         # If no columns given, assume the entire first row is column headers.
         if self.num_cols == 0:
             with open(self.data_file, 'r') as f:
                 line = next(f)
             headers = line.strip().split(',')
-            self.col_headers = headers
-            self.num_cols = len(headers)
+            self.col_header_update(headers)
 
         df = pd.read_csv(self.data_file)
         self.process_dataframe(df)
 
 
     def process_excel(self):
-
+        '''Process given Excel file: find column headers if none are given and
+        store values for all tracked column headers in row order.'''
+        # Load all sheets in Excel file. Excel files do not allow for there to
+        # be no sheets in a file.
         dfs = pd.read_excel(self.data_file, sheet_name=None)
         sheet_names = list(dfs.keys())
         
@@ -92,8 +106,7 @@ class MarkdownTable:
         for i, sheet in enumerate(sheet_names):
             if no_headers:
                 headers = dfs[sheet_names[i]].columns
-                self.col_headers = headers
-                self.num_cols = len(headers)
+                self.col_header_update(headers)
 
             df = dfs[sheet]
             self.process_dataframe(df)
@@ -134,13 +147,12 @@ class MarkdownTable:
         table_str += line_prefix
 
         def aligner() -> str:
-            '''Ensures left, center, or right alignment in table.'''
             match self.align:
                 case "left":
                     return ":-"
                 case "center":
                     return ":-:"      
-                case _:
+                case _: # right alignment
                     return "-:"  
 
         # Horizontal line separator
