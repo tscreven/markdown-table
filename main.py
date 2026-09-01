@@ -1,7 +1,7 @@
 import argparse
 from table_generator import MarkdownTable
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser("fill in")
     parser.add_argument("f", help="Path to file.")
     parser.add_argument("md", help="Markdown file.")
@@ -20,5 +20,14 @@ if __name__ == "__main__":
     col_headers = [] if args.cols is None else args.cols
     excel_sheets = [] if args.sheets is None else args.sheets
 
-    MarkdownTable(args.f, args.md, args.align, args.line, args.append, 
-                  col_headers, excel_sheets)
+    MarkdownTable(args.f, 
+                  args.md, 
+                  args.align, 
+                  args.line, 
+                  args.append,
+                  col_headers, 
+                  excel_sheets
+                )
+
+if __name__ == "__main__":
+    main()
