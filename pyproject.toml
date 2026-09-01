@@ -1,0 +1,10 @@
+[project]
+name = "markdown-table-generator"
+version = "0.1.0"
+dependencies = ["pandas", "numpy", "openpyxl"]
+
+[project.scripts]
+markdown-table = "main:main"
+
+[tool.setuptools]
+py-modules = ["main", "table_generator"]

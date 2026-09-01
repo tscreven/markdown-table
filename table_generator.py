@@ -25,7 +25,7 @@ class MarkdownTable:
         if not os.path.exists(md_file):
             error(f"{md_file} does not exist.")
 
-        if line_num <= 0:
+        if not append and line_num <= 0:
             print(f"Appending table to end of {md_file} because either no line number was given or the line number is not positive.")
             append = True
 
