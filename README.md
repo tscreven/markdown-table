@@ -2,6 +2,12 @@
 
 `markdown-table` programatically generates Markdown formatted table(s) from a given data file and writes it to a Markdown file. Supported data file formats: CSV (.csv), NumPy (.npy), and Excel (.xlsx) files. 
 
+## Download
+
+```bash
+pip install md-table-writer
+```
+
 ## Overview
 
 Program processes text from data files and processes them into row-ordered table(s) with column headers. The table is written to a Markdown file either at a specific line number or appendeded to the end of the file.

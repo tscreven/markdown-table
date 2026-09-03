@@ -1,6 +1,6 @@
 [project]
-name = "markdown-table-generator"
-version = "0.1.0"
+name = "md-table-writer"
+version = "0.1.1"
 
 authors = [
     { name="Thomas Screven", email="tscreven@gmail.com"}

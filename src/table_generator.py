@@ -26,7 +26,6 @@ class MarkdownTable:
             error(f"{md_file} does not exist.")
 
         if not append and line_num <= 0:
-            print(f"Appending table to end of {md_file} because either no line number was given or the line number is not positive.")
             append = True
 
         self.data_file = data_file
@@ -37,11 +36,6 @@ class MarkdownTable:
         self.col_headers = col_headers
         self.num_cols = len(col_headers)
 
-        self.delegate(excel_sheets)
-
-
-    def delegate(self, excel_sheets):
-        '''Direct table value processing based on file type.'''
         if self.data_file[-4:] == ".csv":
             self.process_csv()
         elif self.data_file[-4:] == ".npy":
@@ -110,7 +104,7 @@ class MarkdownTable:
         dfs = pd.read_excel(self.data_file, sheet_name=None)
         all_file_sheets = dfs.keys()
         if sheet_names == []:
-            # Load all sheets in Excel file if sheet_names are not specified.
+            # Load all sheets in Excel file if sheet_names is unspecified.
             sheet_names = list(all_file_sheets)
         else:
             for sheet in sheet_names:
@@ -145,7 +139,7 @@ class MarkdownTable:
             print(f"Mismatch in number of columns in NumPy matrix and given column headers.") 
 
             if data.shape[0] == self.num_cols:
-                print("The number of rows match the number of given column headers. Generated table from transposed matrix.")
+                print("The number of rows match the number of listed column headers. Generated table from transposed matrix.")
                 data = data.T
             else:
                 error(f"{self.data_file} contains {data_cols} columns, given {self.num_cols} column headers.")
