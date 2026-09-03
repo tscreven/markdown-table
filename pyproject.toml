@@ -1,6 +1,6 @@
 [project]
-name = "md-table-writer"
-version = "0.1.1"
+name = "md_table_writer"
+version = "0.1.2"
 
 authors = [
     { name="Thomas Screven", email="tscreven@gmail.com"}
@@ -27,7 +27,7 @@ Homepage = "https://github.com/tscreven/MarkdownTableGenerator"
 Issues = "https://github.com/tscreven/MarkdownTableGenerator/issues"
 
 [project.scripts]
-markdown-table = "main:main"
+md_table_writer = "main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

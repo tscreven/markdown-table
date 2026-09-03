@@ -1,11 +1,11 @@
-# markdown-table
+# md_table_writer
 
-`markdown-table` programatically generates Markdown formatted table(s) from a given data file and writes it to a Markdown file. Supported data file formats: CSV (.csv), NumPy (.npy), and Excel (.xlsx) files. 
+`md_table_writer` programatically generates Markdown formatted table(s) from a given data file and writes it to a Markdown file. Supported data file formats: CSV (.csv), NumPy (.npy), and Excel (.xlsx) files. 
 
 ## Download
 
 ```bash
-pip install md-table-writer
+pip install md_table_writer
 ```
 
 ## Overview
@@ -21,7 +21,7 @@ Program processes text from data files and processes them into row-ordered table
 
 ## Usage
 ```bash
-markdown-table f md -cols -sheets -align -line -append
+md_table_writer f md -cols -sheets -align -line -append
 ```
 
 | Argument |                       Description                      |               Required?              |   Default   |        Example        |
@@ -38,16 +38,16 @@ markdown-table f md -cols -sheets -align -line -append
 ### Examples
 
 ```bash
-markdown-table data.xlsx report.md -cols Time Population -sheets Sheet1 Sheet2 -align right -line 50
+md_table_writer data.xlsx report.md -cols Time Population -sheets Sheet1 Sheet2 -align right -line 50
 ```
 Generates two tables for Sheet1 and Sheet2 with columns Time and Population from data.xlsx. The table's columns are right aligned. The table is written on line 50 in report.md.
 
 ```bash
-markdown-table data.csv report.md -align left -append
+md_table_writer data.csv report.md -align left -append
 ```
 Generates one table with columns Time and Population from data.csv. The table's columns are left aligned. The table is written to the end of report.md.
 
 ```bash
-markdown-table data.npy report.md -cols Time Population -line 50
+md_table_writer data.npy report.md -cols Time Population -line 50
 ```
 Generates one table from the 2D matrix in data.npy with column headers Time and Population. The table's columns are center aligned. The table is written onen line 50 in report.md.
