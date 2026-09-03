@@ -64,18 +64,24 @@ class MarkdownTable:
 
     def process_dataframe(self, df:pd.DataFrame):
         '''Helper function for file processing functions using Dataframes.'''
+
+        def check_header(header):
+            if header not in df:
+                error(f'Category "{header}" is not a column header in {self.data_file}. Note that column headers are case sensitive.')
+
+        check_header(self.col_headers[0])
+
         num_rows = len(df[self.col_headers[0]])
         rows = [[] for _ in range(num_rows)]
 
-        for category in self.col_headers:
+        for header in self.col_headers:
 
-            if category not in df:
-                error(f"Category '{category}' is not a column header in {self.data_file}.")
+            check_header(header)
 
-            if len(df[category]) != num_rows:
-                error(f"Unequal column length between columns {self.col_headers[0]} and {category}.")
+            if len(df[header]) != num_rows:
+                error(f"Unequal column length between columns {self.col_headers[0]} and {header}.")
 
-            col_values = df[category]
+            col_values = df[header]
             for i in range(num_rows):
                 rows[i].append(col_values[i])
 
