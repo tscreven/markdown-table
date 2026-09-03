@@ -1,6 +1,6 @@
 # md_table_writer
 
-`md_table_writer` programatically generates Markdown formatted table(s) from a given data file and writes it to a Markdown file. Supported data file formats: CSV (.csv), NumPy (.npy), and Excel (.xlsx) files. 
+`md_table_writer` generates Markdown formatted table(s) from a given data file and writes it to a Markdown file. Supported data file formats: CSV (.csv), NumPy (.npy), and Excel (.xlsx) files. 
 
 ## Download
 
@@ -10,7 +10,7 @@ pip install md_table_writer
 
 ## Overview
 
-Program processes text from data files and processes them into row-ordered table(s) with column headers. The table is written to a Markdown file either at a specific line number or appendeded to the end of the file.
+Program processes text from data files and processes them into row-ordered table(s) with column headers. The table is written to a Markdown file either at a specific line number or appended to the end of the file.
 
 **CSV and Excel:** Users have the option to specify which column headers from the file to process. If left unspecified, the package will process all columns. The package assumes the first row in the file is column headers. 
 
@@ -50,4 +50,4 @@ Generates one table with columns Time and Population from data.csv. The table's 
 ```bash
 md_table_writer data.npy report.md -cols Time Population -line 50
 ```
-Generates one table from the 2D matrix in data.npy with column headers Time and Population. The table's columns are center aligned. The table is written onen line 50 in report.md.
+Generates one table from the 2D matrix in data.npy with column headers Time and Population. The table's columns are center aligned. The table is written on line 50 in report.md.
