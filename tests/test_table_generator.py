@@ -52,6 +52,19 @@ class MarkdownTableTests(unittest.TestCase):
         self.assertIn( "| Rank | Name |\n| -: | -: |\n| 2 | Ada |\n| 1 | Grace |", content)
 
 
+    def test_csv_unequal_commas_between_rows_assert_error(self):
+        data_file = self.base_path / "data.csv"
+        data_file.write_text("Name,Score\nAda,10\nGrace,12,1\n", encoding="utf-8")
+
+        with self.assertRaises(SystemExit) as raised, redirect_stdout(io.StringIO()) as output:
+            MarkdownTable(str(data_file), str(self.md_file), "center", 0, True, [], [])
+
+        self.assertEqual(raised.exception.code, 1)
+        self.assertIn("Unequal comma count between lines in", output.getvalue())
+        self.assertIn("Line 1 has 1 commas", output.getvalue())
+        self.assertIn("Line 3 has 2 commas", output.getvalue())
+
+
     def test_line_insertion(self):
         self.md_file.write_text("First\nSecond\nThird\n", encoding="utf-8")
         data_file = self.base_path / "data.csv"

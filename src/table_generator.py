@@ -3,9 +3,11 @@ import sys
 import os
 from typing import Literal
 import numpy as np
+from termcolor import colored
 
 def error(message:str):
-    print(message)
+    print()
+    print(colored("ERROR:", "red"), message, end='\n'*2)
     sys.exit(1)
 
 class MarkdownTable:
@@ -48,8 +50,8 @@ class MarkdownTable:
             error("Invalid file type. Data file must be either a CSV (.csv), NumPy (.npy), or Excel (.xlsx) file.")
 
 
-    def col_header_update(self, headers):
-        '''Update instance for tracking new column headers.'''
+    def use_data_file_headers(self, headers):
+        '''Use column headers already written in data_file.'''
         if len(headers) == 0:
             error(f"No column headers given and column headers could not be located in {self.data_file}.")
         self.col_headers = headers
@@ -61,7 +63,7 @@ class MarkdownTable:
 
         def check_header(header):
             if header not in df:
-                error(f'Category "{header}" is not a column header in {self.data_file}. Note that column headers are case sensitive.')
+                error(f'Category "{header}" is not a column header in {self.data_file}. Note that column header spelling is case sensitive.')
 
         check_header(self.col_headers[0])
 
@@ -77,7 +79,7 @@ class MarkdownTable:
 
             col_values = df[header]
             for i in range(num_rows):
-                rows[i].append(col_values[i])
+                rows[i].append(col_values.iloc[i])
 
         self.gen_table(rows)
 
@@ -90,7 +92,18 @@ class MarkdownTable:
             with open(self.data_file, 'r') as f:
                 line = next(f)
             headers = line.strip().split(',')
-            self.col_header_update(headers)
+            self.use_data_file_headers(headers)
+
+        # If there is an unequal number of commas between lines in the data
+        # file, pandas incorrectly assigns columns and headers.
+        with open(self.data_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        header_comma_count = lines[0].count(',')
+        for i in range(1, len(lines)):
+            line_comma_count = lines[i].count(',')
+            if line_comma_count != header_comma_count:
+                error(f"Unequal comma count between lines in {self.data_file}:\n\tLine 1 has {header_comma_count} commas\n\tLine {i+1} has {line_comma_count} commas")
 
         df = pd.read_csv(self.data_file)
         self.process_dataframe(df)
@@ -104,7 +117,7 @@ class MarkdownTable:
         dfs = pd.read_excel(self.data_file, sheet_name=None)
         all_file_sheets = dfs.keys()
         if sheet_names == []:
-            # Load all sheets in Excel file if sheet_names is unspecified.
+            # Load all sheets in data file if sheet_names is unspecified.
             sheet_names = list(all_file_sheets)
         else:
             for sheet in sheet_names:
@@ -117,7 +130,7 @@ class MarkdownTable:
         for i, sheet in enumerate(sheet_names):
             if no_headers:
                 headers = dfs[sheet_names[i]].columns
-                self.col_header_update(headers)
+                self.use_data_file_headers(headers)
 
             df = dfs[sheet]
             self.process_dataframe(df)
