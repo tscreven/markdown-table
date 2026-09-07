@@ -25,7 +25,9 @@ license-files = ["LICENSE"]
 
 [project.urls]
 Homepage = "https://github.com/tscreven/MarkdownTableGenerator"
+Repository = "https://github.com/tscreven/MarkdownTableGenerator"
 Issues = "https://github.com/tscreven/MarkdownTableGenerator/issues"
+Changelog = "https://github.com/tscreven/markdown-table/blob/main/CHANGELOG.md"
 
 [project.scripts]
 md_table_writer = "main:main"
