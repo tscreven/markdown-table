@@ -3,12 +3,15 @@ import sys
 import os
 from typing import Literal
 import numpy as np
+import math
 from termcolor import colored
 
 def error(message:str):
+    '''Print error message to terminal.'''
     print()
     print(colored("ERROR:", "red"), message, end='\n'*2)
     sys.exit(1)
+
 
 class MarkdownTable:
 
@@ -85,7 +88,12 @@ class MarkdownTable:
 
             col_values = df[header]
             for i in range(num_rows):
-                rows[i].append(col_values.iloc[i])
+                value = col_values.iloc[i]
+                # If data file does not provide a value for the cell being
+                # processed, replace the value with an empty string.
+                if pd.isna(value): 
+                    value = ""
+                rows[i].append(value)
 
         self._gen_table(rows)
 

@@ -55,6 +55,18 @@ class MarkdownTableTests(unittest.TestCase):
         self.assertIn( "| Rank | Name |\n| -: | -: |\n| 2 | Ada |\n| 1 | Grace |", content)
 
 
+    def test_csv_empty_values(self):
+        data_file = self.base_path / "data.csv"
+        data_file.write_text("Name,Status,Note\nAda,,complete\n,done,\n", encoding="utf-8")
+
+        content = self.generate_table(str(data_file))
+
+        self.assertIn(
+            "| Name | Status | Note |\n| :-: | :-: | :-: |\n| Ada |  | complete |\n|  | done |  |",
+            content,
+        )
+
+
     def test_multiple_csv_files(self):
         first_file = self.base_path / "first.csv"
         second_file = self.base_path / "second.csv"
@@ -137,6 +149,24 @@ class MarkdownTableTests(unittest.TestCase):
 
         self.assertIn("| Name | Score |\n| :-: | :-: |\n| Ada | 10 |", content)
         self.assertNotIn("Ignored", content)
+
+    def test_excel_empty_values(self):
+        data_file = self.base_path / "data.xlsx"
+        with pd.ExcelWriter(data_file) as writer:
+            pd.DataFrame(
+                {
+                    "Name": ["Ada", None],
+                    "Status": [None, "done"],
+                    "Note": ["complete", None],
+                }
+            ).to_excel(writer, sheet_name="Scores", index=False)
+
+        content = self.generate_table(str(data_file), col_headers=["Name", "Status", "Note"], excel_sheets=["Scores"])
+
+        self.assertIn(
+            "| Name | Status | Note |\n| :-: | :-: | :-: |\n| Ada |  | complete |\n|  | done |  |",
+            content,
+        )
 
     def test_np_array_no_headers_assert_error(self):
         data_file = self.base_path / "data.npy"
