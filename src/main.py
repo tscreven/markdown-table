@@ -5,7 +5,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate Markdown tables from CSV, Excel, or NumPy files."
     )
-    parser.add_argument("f", help="Path to data file.")
+    parser.add_argument("f", nargs='+', help="Path to data file(s).")
     parser.add_argument("md", help="Path to target Markdown file.")
     parser.add_argument("-cols", nargs='+', 
                         help="Column headers to include from the data file.")

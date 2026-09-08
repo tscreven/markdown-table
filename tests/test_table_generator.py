@@ -23,10 +23,13 @@ class MarkdownTableTests(unittest.TestCase):
     def tearDown(self):
         self.temp_dir.cleanup()
 
-    def generate_table(self, data_file:str, align:Literal["left", "center", "right"]="center", 
+    def generate_table(self, data_files, align: Literal["left", "center", "right"]="center", 
                        line_num=0, append=True, col_headers=[], excel_sheets=[]):
-        
-        MarkdownTable(str(data_file), str(self.md_file), align, line_num, 
+
+        if isinstance(data_files, (str, Path)):
+            data_files = [data_files]
+
+        MarkdownTable([str(data_file) for data_file in data_files], str(self.md_file), align, line_num, 
                       append, col_headers, excel_sheets,)
         return self.md_file.read_text(encoding="utf-8")
 
@@ -52,12 +55,38 @@ class MarkdownTableTests(unittest.TestCase):
         self.assertIn( "| Rank | Name |\n| -: | -: |\n| 2 | Ada |\n| 1 | Grace |", content)
 
 
+    def test_multiple_csv_files(self):
+        first_file = self.base_path / "first.csv"
+        second_file = self.base_path / "second.csv"
+        first_file.write_text("Name,Score\nAda,10\nGrace,12\n", encoding="utf-8")
+        second_file.write_text("Name,Score\nKatherine,15\nDorothy,14\n", encoding="utf-8")
+
+        content = self.generate_table([first_file, second_file])
+
+        self.assertEqual(content.count("| Name | Score |"), 2)
+        self.assertIn("| Ada | 10 |\n| Grace | 12 |", content)
+        self.assertIn("| Katherine | 15 |\n| Dorothy | 14 |", content)
+
+
+    def test_multiple_mixed_data_files(self):
+        csv_file = self.base_path / "data.csv"
+        npy_file = self.base_path / "data.npy"
+        csv_file.write_text("A,B\n1,2\n", encoding="utf-8")
+        np.save(npy_file, np.array([[3, 4], [5, 6]]))
+
+        content = self.generate_table([csv_file, npy_file], col_headers=["A", "B"])
+
+        self.assertEqual(content.count("| A | B |"), 2)
+        self.assertIn("| 1 | 2 |", content)
+        self.assertIn("| 3 | 4 |\n| 5 | 6 |", content)
+
+
     def test_csv_unequal_commas_between_rows_assert_error(self):
         data_file = self.base_path / "data.csv"
         data_file.write_text("Name,Score\nAda,10\nGrace,12,1\n", encoding="utf-8")
 
         with self.assertRaises(SystemExit) as raised, redirect_stdout(io.StringIO()) as output:
-            MarkdownTable(str(data_file), str(self.md_file), "center", 0, True, [], [])
+            MarkdownTable([str(data_file)], str(self.md_file), "center", 0, True, [], [])
 
         self.assertEqual(raised.exception.code, 1)
         self.assertIn("Unequal comma count between lines in", output.getvalue())
@@ -114,7 +143,7 @@ class MarkdownTableTests(unittest.TestCase):
         np.save(data_file, np.array([[1]]))
 
         with self.assertRaises(SystemExit) as raised, redirect_stdout(io.StringIO()) as output:
-            MarkdownTable(str(data_file), str(self.md_file), "center", 0, True, [], [])
+            MarkdownTable([str(data_file)], str(self.md_file), "center", 0, True, [], [])
 
         self.assertEqual(raised.exception.code, 1)
         self.assertIn("Column headers must be given for NumPy file.", output.getvalue())
@@ -125,7 +154,7 @@ class MarkdownTableTests(unittest.TestCase):
         data_file.write_text("Name,Score\nAda,10\n", encoding="utf-8")
 
         with self.assertRaises(SystemExit) as raised, redirect_stdout(io.StringIO()) as output:
-            MarkdownTable(str(data_file), str(self.md_file), "center", 0, True, ["Missing"], [])
+            MarkdownTable([str(data_file)], str(self.md_file), "center", 0, True, ["Missing"], [])
 
         self.assertEqual(raised.exception.code, 1)
         self.assertIn( 'Category "Missing" is not a column header in', output.getvalue())
