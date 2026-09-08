@@ -1,6 +1,6 @@
 [project]
 name = "md_table_writer"
-version = "0.1.4"
+version = "1.0.0"
 
 authors = [
     { name="Thomas Screven", email="tscreven@gmail.com"}
