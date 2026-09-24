@@ -1,8 +1,25 @@
 import argparse
 from table_generator import MarkdownTable
+import sys
+from termcolor import colored
 
+
+class Parser(argparse.ArgumentParser):
+    def error(self, message):
+        if "required" in message:
+            print()
+            print(colored("INVALID ARGUMENT ERROR:", "red"), 
+                  "At least two file paths must be passed with the final one being to a Markdown file. See help message below.", 
+                  end='\n'*2)
+            self.print_help()
+        else:
+            print(message)
+
+        sys.exit(2)
+
+            
 def main():
-    parser = argparse.ArgumentParser(
+    parser = Parser(
         description="Generate Markdown tables from CSV, Excel, or NumPy files."
     )
     parser.add_argument("f", nargs='+', help="Path to data file(s).")
@@ -13,7 +30,7 @@ def main():
                         help="Excel sheet names to generate tables from.")
     parser.add_argument("-align", choices=["left", "center", "right"], 
                         default="center", help="Table column alignment.")
-    parser.add_argument("-line", type=int, default=0,
+    parser.add_argument("-line", type=int, default=None,
                         help="Line number where table(s) are inserted in the Markdown file.")
     parser.add_argument("-append", action='store_true', 
                         help="Append table(s) to the end of the Markdown file.")

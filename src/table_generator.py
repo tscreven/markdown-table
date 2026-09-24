@@ -3,8 +3,8 @@ import sys
 import os
 from typing import Literal
 import numpy as np
-import math
 from termcolor import colored
+import sys
 
 def error(message:str):
     '''Print error message to terminal.'''
@@ -27,18 +27,28 @@ class MarkdownTable:
         if not os.path.exists(md_file):
             error(f"{md_file} does not exist.")
 
-        if not append and line_num <= 0:
+        if line_num is not None:
+            if line_num <= 0:
+                error(f"Invalid line number: {line_num}. Line number must be positive.")
+        else:
+            # If no line number is given, append the table(s).
             append = True
 
+
         self.md_file = md_file
-        self.align = table_alignment
-        self.line_num = line_num 
+        self.data_files_remaining = len(data_files)
+
+        alignment = {"left": ":-", "center": ":-:", "right": "-:"}
+        self.align = alignment[table_alignment]
+
+        self.line_num = line_num
         self.append = append
         self.col_headers = col_headers
         self.num_cols = len(col_headers)
         self.excel_sheets = excel_sheets
 
         for file in data_files:
+            self.data_files_remaining -= 1
             self._delegate(file)
 
 
@@ -185,16 +195,9 @@ class MarkdownTable:
             table_str += f" {h} |"
         table_str += next_line
 
-        if self.align == "left":
-            sep = ":-"
-        elif self.align == "center":
-            sep = ":-:" 
-        else: # right alignment
-            sep = "-:" 
-
         # Horizontal line separator
         for _ in range(self.num_cols):
-            table_str += f" {sep} |"
+            table_str += f" {self.align} |"
 
         # Add each row
         for row in rows:
@@ -202,17 +205,18 @@ class MarkdownTable:
             for item in row:
                 table_str += f" {item} |"
 
-        # Need extra new line for formatting. 
-        table_str += "\n"*2
-
         with open(self.md_file, "r", encoding="utf-8") as f:
             lines = f.readlines()
+
+        table_str += '\n'
 
         if self.append or self.line_num + 1 > len(lines):
             with open(self.md_file, "a", encoding="utf-8") as f:
                 f.write('\n')
-                f.write(table_str[:-1])
+                f.write(table_str)
         else:
+            if self.data_files_remaining > 0:
+                table_str += '\n'
             lines.insert(self.line_num - 1, table_str)
             with open(self.md_file, "w", encoding="utf-8") as f:
                 f.writelines(lines)
