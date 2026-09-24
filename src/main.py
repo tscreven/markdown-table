@@ -9,12 +9,14 @@ class Parser(argparse.ArgumentParser):
         if "required" in message:
             print()
             print(colored("INVALID ARGUMENT ERROR:", "red"), 
-                  "At least two file paths must be passed with the final one being to a Markdown file. See help message below.", 
+                  "At least two file paths must be passed with the final one being to a Markdown file.", 
                   end='\n'*2)
-            self.print_help()
         else:
-            print(message)
+            print()
+            print(colored(message, "yellow"), end='\n'*2)
 
+        print(colored("See help message below.", "yellow"), end='\n'*2)
+        self.print_help()
         sys.exit(2)
 
             
