@@ -38,7 +38,7 @@ md_table_writer f md -cols -sheets -align -line -append
 | `-cols` | Column headers to process from data files | No, unless at least one data file is a NumPy file | All columns for CSV/Excel | `-cols Time Population` |
 | `-sheets` | List of sheets from Excel file to generate tables for | No | All sheets | `-sheets Sheet1 Sheet2` |
 | `-align` | Table column alignment options: left, center, or right | No | center | `-align right` |
-| `-line` | Line number in Markdown file to insert | No | end of file | `-line 50` |
+| `-line` | Positive line number in Markdown file to insert | No | end of file | `-line 50` |
 | `-append` | Append generated table to the end of the Markdown file | No | False | `-append` |
 
 ### Argument Positioning

@@ -24,13 +24,13 @@ class MarkdownTableTests(unittest.TestCase):
         self.temp_dir.cleanup()
 
     def generate_table(self, data_files, align: Literal["left", "center", "right"]="center", 
-                       line_num=0, append=True, col_headers=[], excel_sheets=[]):
+                       line_num: int=1, append=True, col_headers=[], excel_sheets=[]):
 
         if isinstance(data_files, (str, Path)):
             data_files = [data_files]
 
         MarkdownTable([str(data_file) for data_file in data_files], str(self.md_file), align, line_num, 
-                      append, col_headers, excel_sheets,)
+                      append, col_headers, excel_sheets)
         return self.md_file.read_text(encoding="utf-8")
 
 
@@ -98,7 +98,7 @@ class MarkdownTableTests(unittest.TestCase):
         data_file.write_text("Name,Score\nAda,10\nGrace,12,1\n", encoding="utf-8")
 
         with self.assertRaises(SystemExit) as raised, redirect_stdout(io.StringIO()) as output:
-            MarkdownTable([str(data_file)], str(self.md_file), "center", 0, True, [], [])
+            MarkdownTable([str(data_file)], str(self.md_file), "center", 1, True, [], [])
 
         self.assertEqual(raised.exception.code, 1)
         self.assertIn("Unequal comma count between lines in", output.getvalue())
@@ -117,6 +117,22 @@ class MarkdownTableTests(unittest.TestCase):
         self.assertTrue(content.startswith("First\n\n| Name | Score |"))
         self.assertIn("| :- | :- |\n| Ada | 10 |", content)
         self.assertTrue(content.endswith("\nSecond\nThird\n"))
+
+    def test_nonpositive_line_number_assert_error(self):
+        data_file = self.base_path / "data.csv"
+        data_file.write_text("Name,Score\nAda,10\n", encoding="utf-8")
+
+        for line_num in (0, -1):
+            with self.subTest(line_num=line_num):
+                with self.assertRaises(SystemExit) as raised, redirect_stdout(io.StringIO()) as output:
+                    self.generate_table(data_file, line_num=line_num, append=False)
+
+                self.assertEqual(raised.exception.code, 1)
+                self.assertIn(
+                    f"Invalid line number: {line_num}. Line number must be positive.",
+                    output.getvalue(),
+                )
+                self.assertEqual(self.md_file.read_text(encoding="utf-8"), "# Report\n")
 
     def test_np_array(self):
         data_file = self.base_path / "data.npy"
@@ -173,10 +189,10 @@ class MarkdownTableTests(unittest.TestCase):
         np.save(data_file, np.array([[1]]))
 
         with self.assertRaises(SystemExit) as raised, redirect_stdout(io.StringIO()) as output:
-            MarkdownTable([str(data_file)], str(self.md_file), "center", 0, True, [], [])
+            MarkdownTable([str(data_file)], str(self.md_file), "center", 1, True, [], [])
 
         self.assertEqual(raised.exception.code, 1)
-        self.assertIn("Column headers must be given for NumPy file.", output.getvalue())
+        self.assertIn("Column headers must be defined for NumPy file.", output.getvalue())
 
 
     def test_given_wrong_header_assert_error(self):
@@ -184,7 +200,7 @@ class MarkdownTableTests(unittest.TestCase):
         data_file.write_text("Name,Score\nAda,10\n", encoding="utf-8")
 
         with self.assertRaises(SystemExit) as raised, redirect_stdout(io.StringIO()) as output:
-            MarkdownTable([str(data_file)], str(self.md_file), "center", 0, True, ["Missing"], [])
+            MarkdownTable([str(data_file)], str(self.md_file), "center", 1, True, ["Missing"], [])
 
         self.assertEqual(raised.exception.code, 1)
         self.assertIn( 'Category "Missing" is not a column header in', output.getvalue())
